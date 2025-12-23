@@ -150,13 +150,10 @@ if (token) {
 
     <script>
         import { authService } from "../lib/services";
-        import { setToken, clearAuth } from "../lib/api";
+        import { setToken } from "../lib/api";
         import { showError, hideError } from "../lib/utils";
 
         const form = document.getElementById("loginForm") as HTMLFormElement;
-        const errorMessage = document.getElementById(
-            "errorMessage"
-        ) as HTMLElement;
         const submitBtn = document.getElementById(
             "submitBtn"
         ) as HTMLButtonElement;
