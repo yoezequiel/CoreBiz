@@ -5,7 +5,6 @@
 
 import { get, post, put, patch, del } from "./api";
 import { API_ENDPOINTS } from "./config";
-import type { ApiResponse } from "./api";
 
 // ========== Auth Services ==========
 
