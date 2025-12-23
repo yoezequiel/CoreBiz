@@ -1,11 +1,11 @@
 {
-  "buildCommand": "bun run build",
-  "outputDirectory": "dist",
-  "framework": "astro",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
-    }
-  ]
+    "buildCommand": "bun run build",
+    "outputDirectory": "dist",
+    "framework": "astro",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/$1"
+        }
+    ]
 }
