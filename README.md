@@ -12,7 +12,7 @@ Sistema ERP (Enterprise Resource Planning) moderno y escalable diseñado especí
 
 ## ✨ Demo en Vivo
 
-🔗 **[Ver Demo](https://corebiz.vercel.app)** _(Cuando esté desplegado)_
+🔗 **[Ver Demo](https://corebiz-yoezequiel.vercel.app)**
 
 **Credenciales de Prueba:**
 
