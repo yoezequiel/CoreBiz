@@ -1,0 +1,205 @@
+---
+const token = Astro.cookies.get("token")?.value;
+if (!token) {
+    return Astro.redirect("/");
+}
+
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+---
+
+<Layout title="Dashboard">
+    <div class="min-h-screen bg-gray-50">
+        <Navbar activePage="dashboard" />
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Stats Grid -->
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Ventas del Mes</p>
+                            <p
+                                id="totalSales"
+                                class="text-2xl font-bold text-gray-900 mt-2">
+                                $0
+                            </p>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 text-xl">💰</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                Cantidad de Ventas
+                            </p>
+                            <p
+                                id="salesCount"
+                                class="text-2xl font-bold text-gray-900 mt-2">
+                                0
+                            </p>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 text-xl">📊</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                Clientes Activos
+                            </p>
+                            <p
+                                id="activeCustomers"
+                                class="text-2xl font-bold text-gray-900 mt-2">
+                                0
+                            </p>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="text-purple-600 text-xl">👥</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                Ventas Pendientes
+                            </p>
+                            <p
+                                id="pendingSales"
+                                class="text-2xl font-bold text-gray-900 mt-2">
+                                $0
+                            </p>
+                        </div>
+                        <div
+                            class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <span class="text-yellow-600 text-xl">⏳</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Actividad Reciente
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div id="recentActivity" class="space-y-4">
+                        <p class="text-gray-500 text-center py-4">
+                            Cargando...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        import { dashboardService } from "../lib/services";
+        import { getToken } from "../lib/api";
+        import { formatCurrency } from "../lib/utils";
+
+        const token = getToken();
+        if (!token) {
+            window.location.href = "/";
+        }
+
+        // Fetch dashboard stats
+        async function loadDashboard() {
+            try {
+                // Get stats
+                const statsResponse = await dashboardService.getStats(token!);
+                if (statsResponse.success && statsResponse.data) {
+                    const stats = statsResponse.data;
+
+                    const totalSalesEl = document.getElementById("totalSales");
+                    const salesCountEl = document.getElementById("salesCount");
+                    const activeCustomersEl =
+                        document.getElementById("activeCustomers");
+                    const pendingSalesEl =
+                        document.getElementById("pendingSales");
+
+                    if (totalSalesEl)
+                        totalSalesEl.textContent = formatCurrency(
+                            stats.totalSales
+                        );
+                    if (salesCountEl)
+                        salesCountEl.textContent = stats.salesCount.toString();
+                    if (activeCustomersEl)
+                        activeCustomersEl.textContent =
+                            stats.activeCustomers.toString();
+                    if (pendingSalesEl)
+                        pendingSalesEl.textContent = formatCurrency(
+                            stats.pendingSales.total
+                        );
+                }
+
+                // Get recent activity
+                const activityResponse = await dashboardService.getActivity(
+                    token!
+                );
+                if (activityResponse.success && activityResponse.data) {
+                    const activity = activityResponse.data;
+                    const activityEl =
+                        document.getElementById("recentActivity");
+
+                    if (activityEl) {
+                        if (activity.length === 0) {
+                            activityEl.innerHTML =
+                                '<p class="text-gray-500 text-center py-4">No hay actividad reciente</p>';
+                        } else {
+                            activityEl.innerHTML = activity
+                                .map(
+                                    (item: any) => `
+                                <div class="flex items-center justify-between py-3 border-b last:border-b-0">
+                                    <div>
+                                        <p class="font-medium text-gray-900">${item.customer_name}</p>
+                                        <p class="text-sm text-gray-500">Por ${item.user_name}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-semibold text-gray-900">${formatCurrency(item.amount)}</p>
+                                        <p class="text-sm ${
+                                            item.status === "paid"
+                                                ? "text-green-600"
+                                                : item.status === "pending"
+                                                  ? "text-yellow-600"
+                                                  : "text-red-600"
+                                        }">${
+                                            item.status === "paid"
+                                                ? "Pagada"
+                                                : item.status === "pending"
+                                                  ? "Pendiente"
+                                                  : "Cancelada"
+                                        }</p>
+                                    </div>
+                                </div>
+                            `
+                                )
+                                .join("");
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading dashboard:", error);
+            }
+        }
+
+        loadDashboard();
+    </script>
+</Layout>
