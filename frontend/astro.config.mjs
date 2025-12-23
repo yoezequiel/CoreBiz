@@ -3,7 +3,7 @@ import tailwind from "@astrojs/tailwind";
 import vercel from "@astrojs/vercel/serverless";
 
 export default defineConfig({
-    site: "https://corebiz.vercel.app",
+    site: "https://corebiz-yoezequiel.vercel.app",
     integrations: [tailwind()],
     output: "server",
     adapter: vercel(),
